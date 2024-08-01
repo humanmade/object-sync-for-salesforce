@@ -817,6 +817,16 @@ class Object_Sync_Sf_Salesforce {
 			),
 			$this->login_url . $this->authorize_path
 		);
+
+		if ( get_option( $this->option_prefix . 'pkce_support', false ) ) {
+			$challenge = $this->get_challenge();
+
+			$url = add_query_arg( [
+				'code_challenge' => $challenge['code'] ?? '',
+				'code_challenge_method' => 'S256',
+			], $url );
+		}
+
 		return $url;
 	}
 
@@ -834,6 +844,11 @@ class Object_Sync_Sf_Salesforce {
 			'client_secret' => $this->consumer_secret,
 			'redirect_uri'  => $this->callback_url,
 		);
+
+		if ( get_option( $this->option_prefix . 'pkce_support', false ) ) {
+			$challenge = $this->get_challenge();
+			$data['code_verifier'] = $challenge['verifier'] ?? '';
+		}
 
 		$url      = $this->login_url . $this->token_path;
 		$headers  = array(
@@ -1308,4 +1323,45 @@ class Object_Sync_Sf_Salesforce {
 		return $cache_expiration;
 	}
 
+	/*
+	* Get challenge code and verifier.
+	* If no cached challenge data, generate a new verifier and challenge code and cache them.
+	*/
+	protected function get_challenge() {
+		$data = get_transient( $this->option_prefix . 'challenge', '' );
+
+		if ( is_array( $data ) && isset( $data['verifier], $data['code'] ) ) {
+			return $data;
+		}
+
+		$verifier = $this->generate_challenge_verifier();
+		$code = $this->generate_challenge_code( $verifier );
+
+		$data = [
+			'verifier' => $verifier,
+			'code' => $code,
+		];
+
+		set_transient( $this->option_prefix . 'challenge', $data, 15 * MINUTE_IN_SECONDS );
+
+		return $data;
+	}
+
+	/**
+	 * Generate challenge verifier.
+	 */
+	private function generate_challenge_verifier( $length = 128 ) {
+		$random_bytes = random_bytes( $length );
+		return rtrim( strtr( base64_encode( $random_bytes ), '+/', '-_' ), '=' );
+	}
+
+	/**
+	 * Generate the challenge code for PKCE support. If no cached verifier generate a new one.
+	 *
+	 * @param string $challenge_verifier Challenge verifier.
+	 * @return void
+	 */
+	private function generate_challenge_code( $challenge_verifier ) {
+		return rtrim( strtr( base64_encode( hash( 'sha256', $challenge_verifier, true ) ), '+/', '-_' ), '=' );
+	}
 }

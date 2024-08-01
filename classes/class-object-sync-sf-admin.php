@@ -881,6 +881,19 @@ class Object_Sync_Sf_Admin {
 					'default'  => $this->default_token_url_path,
 				),
 			),
+			'pkce_support' => array(
+				'title'    => __( 'Support PKCE?', 'object-sync-for-salesforce' ),
+				'callback' => $callbacks['text'],
+				'page'     => $page,
+				'section'  => $section,
+				'args'     => array(
+					'type'     => 'checkbox',
+					'validate' => 'sanitize_text_field',
+					'desc'     => __( 'To improve the security of your OAuth and authentication provider implementations, Salesforce supports the OAuth 2.0 Proof Key for Code Exchange (PKCE) extension. Check this field if you wish to support this.', 'object-sync-for-salesforce' ),
+					'constant' => '',
+				),
+
+			),
 			'object_filters'                 => array(
 				'title'    => __( 'Limit Salesforce Objects', 'object-sync-for-salesforce' ),
 				'callback' => $callbacks['checkboxes'],
