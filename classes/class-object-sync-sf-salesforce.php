@@ -1330,7 +1330,7 @@ class Object_Sync_Sf_Salesforce {
 	protected function get_challenge() {
 		$data = get_transient( $this->option_prefix . 'challenge', '' );
 
-		if ( $data ) {
+		if ( is_array( $data ) && isset( $data['verifier], $data['code'] ) ) {
 			return $data;
 		}
 
