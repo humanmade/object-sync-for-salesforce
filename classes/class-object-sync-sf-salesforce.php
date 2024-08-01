@@ -847,7 +847,7 @@ class Object_Sync_Sf_Salesforce {
 
 		if ( get_option( $this->option_prefix . 'pkce_support', false ) ) {
 			$challenge = $this->get_challenge();
-			$data['code_verifier'] = $challenge['verifier'] || '';
+			$data['code_verifier'] = $challenge['verifier'] ?? '';
 		}
 
 		$url      = $this->login_url . $this->token_path;
