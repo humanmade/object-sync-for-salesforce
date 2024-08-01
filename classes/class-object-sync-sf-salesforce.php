@@ -1349,7 +1349,7 @@ class Object_Sync_Sf_Salesforce {
 
 	/**
 	 * Generate challenge verifier.
-	*/
+	 */
 	private function generate_challenge_verifier( $length = 128 ) {
 		$random_bytes = random_bytes( $length );
 		return rtrim( strtr( base64_encode( $random_bytes ), '+/', '-_' ), '=' );
