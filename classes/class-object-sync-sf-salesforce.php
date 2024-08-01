@@ -822,7 +822,7 @@ class Object_Sync_Sf_Salesforce {
 			$challenge = $this->get_challenge();
 
 			$url = add_query_arg( [
-				'code_challenge' => $challenge['code'] || '',
+				'code_challenge' => $challenge['code'] ?? '',
 				'code_challenge_method' => 'S256',
 			], $url );
 		}
